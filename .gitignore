@@ -1,0 +1,2 @@
+# Ignore all the png (qrcodes) outputs
+outputs/*
