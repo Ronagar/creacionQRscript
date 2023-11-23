@@ -15,7 +15,10 @@ with open('alumnos.csv', encoding='utf-8') as file:
     reader = csv.DictReader(file)
     headers = [header.strip() for header in reader.fieldnames]
     for row in reader:
-        student=row.get(headers[1])+row.get(headers[0])
+        #store the student full name writing '_' instead of spaces
+        name = row.get(headers[0]).replace(' ', '_')
+        surnames = row.get(headers[1]).replace(' ', '_')
+        student = surnames+'_'+name
         
 
         #Creation of the path if neccessary
