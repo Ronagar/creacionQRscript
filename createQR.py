@@ -11,40 +11,49 @@ hsize = int((float(logo.size[1])*float(60/float(logo.size[0]))))
 #logo = logo.resize((100, hsize), Image.ANTIALIAS)
 logo = logo.resize((60, hsize))
 
-with open('alumnos.csv', encoding='utf-8') as file:
-    reader = csv.DictReader(file)
-    headers = [header.strip() for header in reader.fieldnames]
-    for row in reader:
-        #store the student full name writing '_' instead of spaces
-        name = row.get(headers[0]).replace(' ', '_')
-        surnames = row.get(headers[1]).replace(' ', '_')
-        student = surnames+'_'+name
-        
+fieldnames = ['Code', 'Passed'] #fieldnames for the dataBase.csv
+with open ('dataBase.csv', mode='w', newline='', encoding='utf-8') as dataBase:
+    writer = csv.DictWriter(dataBase, delimiter=',', fieldnames=fieldnames)
+    writer.writeheader()
 
-        #Creation of the path if neccessary
-        Path('./outputs/'+student).mkdir(parents=True, exist_ok=True)
-        
+    with open('alumnos.csv', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        headers = [header.strip() for header in reader.fieldnames]
+        for row in reader:
+            #store the student full name writing '_' instead of spaces
+            name = row.get(headers[0]).replace(' ', '_')
+            surnames = row.get(headers[1]).replace(' ', '_')
+            student = surnames+'_'+name
+            
 
-        for letter in ('a','b','c'):
-            QRcode = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H)
-            #extract the student id from the dataSet
-            data = row.get(headers[2])
-            #Feed the QR Code data
-            data = data+'_'+letter
-            QRcode.add_data(data)
-            QRcode.make
-            # Insert the image to the QR code and create the final image
-            QRimg = QRcode.make_image(fill_color='Black', back_color='White').convert('RGB')
+            #Creation of the path if neccessary
+            Path('./outputs/'+student).mkdir(parents=True, exist_ok=True)
+            
 
-            #We define the image position (center)
-            pos = ((QRimg.size[0] - logo.size[0]) // 2,(QRimg.size[1] - logo.size[1]) // 2)
-            QRimg.paste(logo, pos)
+            for letter in ('a','b','c'):
+                QRcode = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H)
+                #extract the student id from the dataSet
+                data = row.get(headers[2])
+                #Feed the QR Code data
+                data = data+'_'+letter
+                QRcode.add_data(data)
+                QRcode.make
+                # Insert the image to the QR code and create the final image
+                QRimg = QRcode.make_image(fill_color='Black', back_color='White').convert('RGB')
+
+                #We define the image position (center)
+                pos = ((QRimg.size[0] - logo.size[0]) // 2,(QRimg.size[1] - logo.size[1]) // 2)
+                QRimg.paste(logo, pos)
+            
+                #Save the image .png
+                path = './outputs/'+student+'/'+data+'.png'
+                QRimg.save(path)
+
+                #Write the data in the dataBase
+                writer.writerow({'Code': data, 'Passed': 'F'})
         
-            #Save the image .png
-            path = './outputs/'+student+'/'+data+'.png'
-            QRimg.save(path)
-     
-file.close()
+    file.close()
+dataBase.close()
 
 
 
