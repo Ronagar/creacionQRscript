@@ -8,11 +8,17 @@ import sys
 def main():
 
     #Check the number of arguments and obtain the path to the csv file
-    if (len(sys.argv) != 2):
-        print("Usage: python createQR.py path/to/file.csv")
+    if (len(sys.argv) != 3):
+        print("Usage: python createQR.py path/to/file.csv number_of_QR_per_person")
         sys.exit(1)
 
     csvPath = sys.argv[1]
+
+    try:
+        tickets = int(sys.argv[2])
+    except ValueError:
+        print("The second argument must be an integer number")
+        sys.exit(1)
 
     imagenlogo = './etsii.jpeg'
     logo = Image.open(imagenlogo)
@@ -24,7 +30,7 @@ def main():
     fieldnames = ['Code', 'Passed'] #fieldnames for the dataBase.csv
 
     try:
-        with open ('dataBase.csv', mode='w', newline='', encoding='utf-8') as dataBase:
+        with open ('./outputs/dataBase.csv', mode='w', newline='', encoding='utf-8') as dataBase:
             writer = csv.DictWriter(dataBase, delimiter=',', fieldnames=fieldnames)
             writer.writeheader()
 
@@ -42,12 +48,12 @@ def main():
                     Path('./outputs/'+student).mkdir(parents=True, exist_ok=True)
                     
 
-                    for letter in ('a','b','c'):
+                    for tCount in range(1, tickets+1):
                         QRcode = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H)
                         #extract the student id from the dataSet
                         data = row.get(headers[2])
                         #Feed the QR Code data
-                        data = data+'_'+letter
+                        data = data+'_'+str(tCount)
                         QRcode.add_data(data)
                         QRcode.make
                         # Insert the image to the QR code and create the final image
